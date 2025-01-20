@@ -1,110 +1,143 @@
-from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, jsonify
+from datetime import datetime
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-	return "Hello Eva and Nora! Welcome to the Kids Reward System!"
+# Simulated Database
+users = [
+    {"id": 1, "name": "Eva Mason", "points": 20, "history": []},
+    {"id": 2, "name": "Nora Mason", "points": 15, "history": []},
+    {"id": 3, "name": "Marco Almeida", "points": 10, "history": []}
+]
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kids_rewards.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+chores = [
+    {"id": 1, "task": "Make your bed", "points": 5},
+    {"id": 2, "task": "Clean your room", "points": 10},
+    {"id": 3, "task": "Do your homework", "points": 15},
+    {"id": 4, "task": "Do the dishes", "points": 10},
+    {"id": 5, "task": "Take out the trash", "points": 5},
+    {"id": 6, "task": "Walk the dog", "points": 10},
+    {"id": 8, "task": "Water the plants", "points": 5},
+    {"id": 9, "task": "Fold the laundry", "points": 10},
+    {"id": 10, "task": "Sweep the floor", "points": 5},
+    {"id": 11, "task": "Mop the floor", "points": 10},
+    {"id": 12, "task": "Vacuum the carpet", "points": 10},
+    {"id": 13, "task": "Clean the windows", "points": 10},
+    {"id": 14, "task": "Clean the bathroom", "points": 15},
+    {"id": 15, "task": "Clean the kitchen", "points": 15},
+    {"id": 16, "task": "Clean the living room", "points": 10},
+    {"id": 17, "task": "Clean the dining room", "points": 10},
+    {"id": 18, "task": "Clean the garage", "points": 10},
+    {"id": 19, "task": "Clean the backyard", "points": 10},
+    {"id": 20, "task": "Clean the front yard", "points": 10},
+    {"id": 21, "task": "Clean the car", "points": 10},
+    {"id": 22, "task": "Clean the bikes", "points": 5},
+    {"id": 23, "task": "Clean the toys", "points": 5},
+    {"id": 24, "task": "Clean the shoes", "points": 5},
+    {"id": 25, "task": "Clean the clothes", "points": 10},
+    {"id": 26, "task": "Clean the dishes", "points": 10},
+    {"id": 27, "task": "Clean the silverware", "points": 5},
+    {"id": 28, "task": "Clean the pots and pans", "points": 5},
+    {"id": 29, "task": "Clean the glasses", "points": 5},
+    {"id": 30, "task": "Clean the plates", "points": 5},
+    {"id": 31, "task": "Clean the cups", "points": 5},
+    {"id": 32, "task": "Clean the bowls", "points": 5},
+    {"id": 33, "task": "Clean the utensils", "points": 5},
+    {"id": 34, "task": "Soing something nice for your sibling", "points": 10},
+    {"id": 35, "task": "Doing something nice for your parents", "points": 10},
+    {"id": 36, "task": "Doing something nice for your cousin", "points": 10},
+    {"id": 37, "task": "Followed instructions", "points": 10}
+]
 
-# Database models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    role = db.Column(db.String(20), nullable=False)  # "kid" or "parent"
-    points = db.Column(db.Integer, default=0)
-
-class Chore(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80), nullable=False)
-    points = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(20), default="Pending")
-    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-class Reward(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80), nullable=False)
-    points_required = db.Column(db.Integer, nullable=False)
-
-class Penalty(db.Model):  # New model for penalties
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80), nullable=False)
-    points_lost = db.Column(db.Integer, nullable=False)
-    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
+penalties = [
+    {"id": 1, "action": "Arguing", "points_lost": -5},
+    {"id": 2, "action": "Fighting", "points_lost": -10},
+    {"id": 3, "action": "Yelling", "points_lost": -3},
+    {"id": 4, "action": "Not doing homework", "points_lost": -15},
+    {"id": 5, "action": "Not cleaning room", "points_lost": -10},
+    {"id": 6, "action": "Not making bed", "points_lost": -5},
+    {"id": 7, "action": "Not doing chores", "points_lost": -20},
+    {"id": 8, "action": "Not listening", "points_lost": -5},
+    {"id": 9, "action": "Not following rules", "points_lost": -10},
+    {"id": 10, "action": "Not respecting others", "points_lost": -15},
+    {"id": 11, "action": "Not being honest", "points_lost": -10},
+    {"id": 12, "action": "Not being responsible", "points_lost": -15},
+    {"id": 13, "action": "Not being respectful", "points_lost": -10},
+    {"id": 14, "action": "Not being kind", "points_lost": -10},
+    {"id": 15, "action": "Not being helpful", "points_lost": -10},
+    {"id": 16, "action": "Not being polite", "points_lost": -10},
+    {"id": 17, "action": "Not being grateful", "points_lost": -10},
+    {"id": 18, "action": "Not going to bed", "points_lost": -10},
+    {"id": 19, "action": "Not waking up", "points_lost": -10},
+    {"id": 20, "action": "Not eating breakfast", "points_lost": -5},
+    {"id": 21, "action": "Not eating lunch", "points_lost": -5},
+    {"id": 22, "action": "Not eating dinner", "points_lost": -5},
+    {"id": 23, "action": "Not eating vegetables", "points_lost": -5}
+]
 
 # Routes
-@app.route('/api/users', methods=['GET', 'POST'])
-def manage_users():
-    if request.method == 'POST':
-        data = request.json
-        user = User(name=data['name'], role=data['role'], points=0)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify({'message': 'User added!'}), 201
 
-    users = User.query.all()
-    return jsonify([{'id': u.id, 'name': u.name, 'role': u.role, 'points': u.points} for u in users])
+@app.route('/home')
+def home():
+    return render_template('home.html', users=users)
 
-@app.route('/api/chores', methods=['GET', 'POST'])
-def manage_chores():
-    if request.method == 'POST':
-        data = request.json
-        chore = Chore(title=data['title'], points=data['points'], assigned_to=data['assigned_to'])
-        db.session.add(chore)
-        db.session.commit()
-        return jsonify({'message': 'Chore added!'}), 201
+@app.route('/users')
+def view_users():
+    print("Accessed /users route")  # Debug log
+    return render_template('users.html', users=users)
 
-    chores = Chore.query.all()
-    return jsonify([{'id': c.id, 'title': c.title, 'points': c.points, 'status': c.status, 'assigned_to': c.assigned_to} for c in chores])
+@app.route('/chores')
+def view_chores():
+    return render_template('chores.html', chores=chores)
 
-@app.route('/api/chores/<int:chore_id>', methods=['PUT'])
-def update_chore(chore_id):
-    chore = Chore.query.get_or_404(chore_id)
-    chore.status = "Completed"
+@app.route('/penalties')
+def view_penalties():
+    return render_template('penalties.html', penalties=penalties)
 
-    # Add points to the user who completed the chore
-    user = User.query.get_or_404(chore.assigned_to)
-    user.points += chore.points
-
-    db.session.commit()
-    return jsonify({'message': 'Chore updated!'})
-
-@app.route('/api/rewards', methods=['GET', 'POST'])
-def manage_rewards():
-    if request.method == 'POST':
-        data = request.json
-        reward = Reward(title=data['title'], points_required=data['points_required'])
-        db.session.add(reward)
-        db.session.commit()
-        return jsonify({'message': 'Reward added!'}), 201
-
-    rewards = Reward.query.all()
-    return jsonify([{'id': r.id, 'title': r.title, 'points_required': r.points_required} for r in rewards])
-
-@app.route('/api/penalties', methods=['GET', 'POST'])
-def manage_penalties():
-    if request.method == 'POST':
-        data = request.json
-        penalty = Penalty(title=data['title'], points_lost=data['points_lost'], assigned_to=data['assigned_to'])
-        db.session.add(penalty)
-
-        # Deduct points from the assigned user
-        user = User.query.get_or_404(penalty.assigned_to)
-        user.points -= penalty.points_lost
-        db.session.commit()
-
-        return jsonify({'message': 'Penalty added and points deducted!'}), 201
-
-    penalties = Penalty.query.all()
-    return jsonify([{'id': p.id, 'title': p.title, 'points_lost': p.points_lost, 'assigned_to': p.assigned_to} for p in penalties])
+@app.route('/test')
+def test_route():
+    return "Test route is working!"
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create database tables
     app.run(debug=True)
 
+# Add Chore Points
+@app.route('/api/users/<int:user_id>/add_chore', methods=['POST'])
+def add_chore(user_id):
+    data = request.json
+    chore_id = data.get('chore_id')
+    chore = next((c for c in chores if c['id'] == chore_id), None)
+    user = next((u for u in users if u['id'] == user_id), None)
+
+    if not user or not chore:
+        return jsonify({"error": "Invalid user or chore"}), 400
+
+    user['points'] += chore['points']
+    user['history'].append({
+        "action": f"Completed chore: {chore['task']}",
+        "points": chore['points'],
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    return jsonify({"message": "Chore added successfully", "user": user}), 200
+
+# Add Penalty Points
+@app.route('/api/users/<int:user_id>/add_penalty', methods=['POST'])
+def add_penalty(user_id):
+    data = request.json
+    penalty_id = data.get('penalty_id')
+    penalty = next((p for p in penalties if p['id'] == penalty_id), None)
+    user = next((u for u in users if u['id'] == user_id), None)
+
+    if not user or not penalty:
+        return jsonify({"error": "Invalid user or penalty"}), 400
+
+    user['points'] += penalty['points_lost']
+    user['history'].append({
+        "action": f"Penalty: {penalty['action']}",
+        "points": penalty['points_lost'],
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    return jsonify({"message": "Penalty added successfully", "user": user}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
