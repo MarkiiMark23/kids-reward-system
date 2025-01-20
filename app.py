@@ -105,9 +105,6 @@ def test_route():
     app.logger.info("Accessed /test route")  # Log the request
     return "Test route is working!"
 
-if __name__ == '__main__':
-    app.run
-
 # Add Chore Points
 @app.route('/api/users/<int:user_id>/add_chore', methods=['POST'])
 def add_chore(user_id):
