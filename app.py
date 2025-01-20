@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
+
+# Initialize the Flask app
 app = Flask(__name__)
 
+# Ensure this section exists at the top and is correctly indented
 if __name__ == '__main__':
-    app.run
+    app.run()  # Or app.run() if you don’t want debug mode in production
+
 
 # Simulated Database
 users = [
