@@ -181,6 +181,16 @@ def delete_chore(chore_id):
 
 # Add/Delete/Edit functionality for penalties (similar structure)
 
+# User History Route
+@app.route('/users/<int:user_id>/history')
+def user_history(user_id):
+    user = next((u for u in users if u['id'] == user_id), None)
+    if not user:
+        return "User not found", 404
+
+    return render_template('history.html', user=user)
+
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 10000))  # Get PORT from Render, fallback to 5000
