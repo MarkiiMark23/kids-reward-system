@@ -98,7 +98,7 @@ def test_route():
     return "Test route is working!"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run
 
 # Add Chore Points
 @app.route('/api/users/<int:user_id>/add_chore', methods=['POST'])
@@ -139,4 +139,4 @@ def add_penalty(user_id):
     return jsonify({"message": "Penalty added successfully", "user": user}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run
