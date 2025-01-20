@@ -143,6 +143,44 @@ def add_penalty(user_id):
     })
     return jsonify({"message": "Penalty added successfully", "user": user}), 200
 
+# Add functionality for managing chores and penalties
+
+# Add New Chore
+@app.route('/api/chores/add', methods=['POST'])
+def add_chore():
+    data = request.json
+    new_id = max(c['id'] for c in chores) + 1 if chores else 1
+    new_chore = {
+        "id": new_id,
+        "task": data.get('task'),
+        "points": data.get('points')
+    }
+    chores.append(new_chore)
+    return jsonify({"message": "Chore added successfully", "chore": new_chore}), 200
+
+# Edit Existing Chore
+@app.route('/api/chores/<int:chore_id>/edit', methods=['PUT'])
+def edit_chore(chore_id):
+    data = request.json
+    chore = next((c for c in chores if c['id'] == chore_id), None)
+
+    if not chore:
+        return jsonify({"error": "Chore not found"}), 404
+
+    chore['task'] = data.get('task', chore['task'])
+    chore['points'] = data.get('points', chore['points'])
+
+    return jsonify({"message": "Chore updated successfully", "chore": chore}), 200
+
+# Delete Chore
+@app.route('/api/chores/<int:chore_id>/delete', methods=['DELETE'])
+def delete_chore(chore_id):
+    global chores
+    chores = [c for c in chores if c['id'] != chore_id]
+    return jsonify({"message": "Chore deleted successfully"}), 200
+
+# Add/Delete/Edit functionality for penalties (similar structure)
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 10000))  # Get PORT from Render, fallback to 5000
