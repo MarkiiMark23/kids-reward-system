@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
+import os
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -101,6 +102,7 @@ def view_penalties():
 
 @app.route('/test')
 def test_route():
+    app.logger.info("Accessed /test route")  # Log the request
     return "Test route is working!"
 
 if __name__ == '__main__':
