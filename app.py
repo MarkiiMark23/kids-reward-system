@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+	return "Hello Eva and Nora! Welcome to the Kids Reward System!"
+
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kids_rewards.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
