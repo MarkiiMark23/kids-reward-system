@@ -83,7 +83,6 @@ def home():
 
 @app.route('/users')
 def view_users():
-    print("Accessed /users route")  # Debug log
     return render_template('users.html', users=users)
 
 @app.route('/chores')
