@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Ensure this section exists at the top and is correctly indented
 if __name__ == '__main__':
-    app.run()  # Or app.run() if you don’t want debug mode in production
+    app.run()  # Or app.run(debug=True) if you don’t want debug mode in production
 
 
 # Simulated Database
@@ -145,4 +145,7 @@ def add_penalty(user_id):
     return jsonify({"message": "Penalty added successfully", "user": user}), 200
 
 if __name__ == '__main__':
-    app.run
+    import os
+    port = int(os.environ.get("PORT", 10000))  # Get PORT from Render, fallback to 5000
+    app.run(host='0.0.0.0', port=port)        # Host is set to '0.0.0.0' for Render
+
