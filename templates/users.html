@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Users</h1>
+    <ul>
+        {% for user in users %}
+        <li>
+            {{ user.name }} - {{ user.points }} points
+            <!-- Form for adding points -->
+            <form action="/users/{{ user.id }}/add_chore" method="POST">
+                <label for="chore">Add Chore:</label>
+                <select name="chore_id">
+                    {% for chore in chores %}
+                    <option value="{{ chore.id }}">{{ chore.task }} (+{{ chore.points }} points)</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Add Points</button>
+            </form>
+
+            <!-- Form for adding penalties -->
+            <form action="/users/{{ user.id }}/add_penalty" method="POST">
+                <label for="penalty">Add Penalty:</label>
+                <select name="penalty_id">
+                    {% for penalty in penalties %}
+                    <option value="{{ penalty.id }}">{{ penalty.action }} ({{ penalty.points_lost }} points)</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Deduct Points</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

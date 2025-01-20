@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Penalties</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Penalties</h1>
+    <ul>
+        {% for penalty in penalties %}
+        <li>{{ penalty.action }} - {{ penalty.points_lost }} points</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
