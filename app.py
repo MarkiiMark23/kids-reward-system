@@ -97,13 +97,6 @@ def user_profile(user_id):
 
     return render_template('profile.html', user=user, assigned_chores=user_assigned_chores)
 
-@app.route('/users/<int:user_id>/profile')
-def user_profile(user_id):
-    user = next((u for u in users if u['id'] == user_id), None)
-    if not user:
-        return "User not found", 404
-    return render_template('profile.html', user=user)
-
 @app.route('/api/users')
 def get_all_users():
     return jsonify(users), 200
