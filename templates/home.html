@@ -32,7 +32,24 @@
             {% endfor %}
         </div>
     </section>
-
+    <section>
+        <h2>Top Scorer</h2>
+        <div>
+            {% set top_user = users | max(attribute='points') %}
+            <p><strong>{{ top_user.name }}</strong> with <strong>{{ top_user.points }}</strong> points!</p>
+        </div>
+    </section>
+    <section>
+        <h2>Recent Activities</h2>
+        <div class="activity-feed">
+            {% for activity in activities %}
+            <div class="activity-card">
+                <p>{{ activity.user_name }} {{ activity.action }} {{ activity.points }} points for {{ activity.chore_name }}</p>
+                <p class="timestamp">{{ activity.timestamp }}</p>
+            </div>
+            {% endfor %}
+        </div>    
+    </section>
     <footer>
         <p>Created with ❤️ for Eva, Nora & Marco to stay productive and have fun!</p>
     </footer>
