@@ -1,16 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penalties</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        async function applyPenalty(userId, penaltyId) {
+            const response = await fetch(`/api/users/${userId}/add_penalty`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ penalty_id: penaltyId }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            if (response.ok) {
+                location.reload();
+            }
+        }
+    </script>
 </head>
 <body>
-    <h1>Penalties</h1>
-    <ul>
-        {% for penalty in penalties %}
-        <li>{{ penalty.action }} - {{ penalty.points_lost }} points</li>
-        {% endfor %}
-    </ul>
+    <header>
+        <h1>Penalties</h1>
+    </header>
+
+    <section>
+        <ul>
+            {% for penalty in penalties %}
+            <li>
+                <strong>{{ penalty.action }}</strong> - {{ penalty.points_lost }} points
+                <select id="penalty-user-{{ penalty.id }}">
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.name }}</option>
+                    {% endfor %}
+                </select>
+                <button onclick="applyPenalty(document.getElementById('penalty-user-{{ penalty.id }}').value, {{ penalty.id }})">
+                    Apply
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <footer>
+        <a href="{{ url_for('home') }}">Back to Homepage</a>
+    </footer>
 </body>
 </html>
-

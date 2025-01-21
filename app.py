@@ -44,6 +44,11 @@ def view_chores():
 def view_penalties():
     return render_template('penalties.html', penalties=penalties)
 
+@app.route('/leaderboard')
+def leaderboard():
+    sorted_users = sorted(users, key=lambda u: u['points'], reverse=True)
+    return render_template('leaderboard.html', users=sorted_users)
+
 @app.route('/test')
 def test_route():
     app.logger.info("Accessed /test route")  # Log the request
