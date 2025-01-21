@@ -135,6 +135,39 @@ def user_history(user_id):
 
     return render_template('history.html', user=user)
 
+# Reset User Points
+@app.route('/api/users/<int:user_id>/reset', methods=['POST'])
+def reset_points(user_id):
+    user = next((u for u in users if u['id'] == user_id), None)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    user['history'].append({
+        "action": "Reset points",
+        "points": -user['points'],
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    user['points'] = 0
+    return jsonify({"message": "User points reset successfully", "user": user}), 200
+
+# Add Bonus Points
+@app.route('/api/users/<int:user_id>/bonus', methods=['POST'])
+def add_bonus(user_id):
+    data = request.form
+    bonus_points = int(data.get('bonus_points', 0))
+    user = next((u for u in users if u['id'] == user_id), None)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    user['points'] += bonus_points
+    user['history'].append({
+        "action": f"Bonus points added: {bonus_points}",
+        "points": bonus_points,
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    return jsonify({"message": "Bonus points added successfully", "user": user}), 200
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))  # Get PORT from Render, fallback to 10000
     app.run(host='0.0.0.0', port=port)        # Host is set to '0.0.0.0' for Render
