@@ -40,6 +40,34 @@
         </div>
     </section>
     <section>
+        <h2>Points Distribution</h2>
+        <canvas id="pointsChart" width="400" height="200"></canvas>
+    </section>
+    <script src="/static/node_modules/chart.js/dist/chart.min.js"></script>
+    <script>
+        const ctx = document.getElementById('pointsChart').getContext('2d');
+        const pointsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for user in users %} "{{ user.name }}", {% endfor %}],
+                datasets: [{
+                    label: 'Points',
+                    data: [{% for user in users %} {{ user.points }}, {% endfor %}],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>    
+    <section>
         <h2>Recent Activities</h2>
         <div class="activity-feed">
             {% for activity in activities %}

@@ -111,3 +111,40 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+.progress-bar {
+    width: 100%;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+.progress {
+    height: 10px;
+    background-color: #4caf50;
+    border-radius: 5px;
+}
+.table-row-buttons form {
+    margin: 5px 0; /* Adds vertical spacing between forms */
+}
+section {
+    margin-bottom: 20px; /* Adds space below the section */
+}
+
+footer {
+    margin-top: 30px; /* Adds space above the footer */
+}
+
+header {
+    margin-bottom: 30px; /* Adds space below the header */
+}
+.leaderboard-section {
+    margin-bottom: 20px;
+    padding: 15px;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section, footer, header {
+    margin: 20px 0;
+}

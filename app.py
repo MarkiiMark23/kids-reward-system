@@ -48,6 +48,22 @@ def view_penalties():
 def leaderboard():
     sorted_users = sorted(users, key=lambda u: u['points'], reverse=True)
     return render_template('leaderboard.html', users=sorted_users)
+# User Profile Page
+@app.route('/users/<int:user_id>/profile')
+def user_profile(user_id):
+    user = next((u for u in users if u['id'] == user_id), None)
+    if not user:
+        return "User not found", 404
+
+    return render_template('profile.html', user=user)
+
+@app.route('/api/users/<int:user_id>/history', methods=['GET'])
+def get_user_history(user_id):
+    user = next((u for u in users if u['id'] == user_id), None)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"history": user['history']}), 200
 
 @app.route('/test')
 def test_route():
