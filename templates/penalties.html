@@ -5,23 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penalties</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        async function applyPenalty(userId, penaltyId) {
-            const response = await fetch(`/api/users/${userId}/add_penalty`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ penalty_id: penaltyId }),
-            });
-
-            const result = await response.json();
-            alert(result.message);
-            if (response.ok) {
-                location.reload();
-            }
-        }
-    </script>
 </head>
 <body>
     <header>
@@ -49,5 +32,19 @@
     <footer>
         <a href="{{ url_for('home') }}">Back to Homepage</a>
     </footer>
+
+    <script>
+        async function applyPenalty(userId, penaltyId) {
+            const response = await fetch(`/api/users/${userId}/add_penalty`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ penalty_id: penaltyId }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            if (response.ok) location.reload();
+        }
+    </script>
 </body>
 </html>

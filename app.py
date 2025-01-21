@@ -1,15 +1,19 @@
 from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO
 from datetime import datetime
 import os
 
 # Initialize the Flask app
 app = Flask(__name__)
 
+# Initialize SocketIO for real-time updates
+socketio = SocketIO(app)
+
 # Simulated Database
 users = [
     {"id": 1, "name": "Eva Mason", "points": 20, "history": []},
     {"id": 2, "name": "Nora Mason", "points": 15, "history": []},
-    {"id": 3, "name": "Marco Almeida", "points": 10, "history": []}
+    {"id": 3, "name": "Marco Almeida", "points": 10, "history": []},
 ]
 
 chores = [
@@ -17,17 +21,16 @@ chores = [
     {"id": 2, "task": "Clean your room", "points": 10},
     {"id": 3, "task": "Do your homework", "points": 15},
     {"id": 4, "task": "Do the dishes", "points": 10},
-    {"id": 5, "task": "Take out the trash", "points": 5}
+    {"id": 5, "task": "Take out the trash", "points": 5},
 ]
 
 penalties = [
     {"id": 1, "action": "Arguing", "points_lost": -5},
     {"id": 2, "action": "Fighting", "points_lost": -10},
-    {"id": 3, "action": "Yelling", "points_lost": -3}
+    {"id": 3, "action": "Yelling", "points_lost": -3},
 ]
 
 # Routes
-
 @app.route('/home')
 def home():
     return render_template('home.html', users=users)
@@ -47,27 +50,31 @@ def view_penalties():
 @app.route('/leaderboard')
 def leaderboard():
     sorted_users = sorted(users, key=lambda u: u['points'], reverse=True)
+    for user in sorted_users:
+        user['points'] = max(0, min(user['points'], 100))
     return render_template('leaderboard.html', users=sorted_users)
-# User Profile Page
+
 @app.route('/users/<int:user_id>/profile')
 def user_profile(user_id):
     user = next((u for u in users if u['id'] == user_id), None)
     if not user:
         return "User not found", 404
-
     return render_template('profile.html', user=user)
+
+@app.route('/api/users')
+def get_all_users():
+    return jsonify(users), 200
 
 @app.route('/api/users/<int:user_id>/history', methods=['GET'])
 def get_user_history(user_id):
     user = next((u for u in users if u['id'] == user_id), None)
     if not user:
         return jsonify({"error": "User not found"}), 404
-
     return jsonify({"history": user['history']}), 200
 
 @app.route('/test')
 def test_route():
-    app.logger.info("Accessed /test route")  # Log the request
+    app.logger.info("Accessed /test route")
     return "Test route is working!"
 
 # Add Chore Points
@@ -108,50 +115,37 @@ def add_penalty_to_user(user_id):
     })
     return jsonify({"message": "Penalty added successfully", "user": user}), 200
 
-# Add New Chore
 @app.route('/api/chores/add', methods=['POST'])
 def add_new_chore():
     data = request.json
     new_id = max(c['id'] for c in chores) + 1 if chores else 1
-    new_chore = {
-        "id": new_id,
-        "task": data.get('task'),
-        "points": data.get('points')
-    }
+    new_chore = {"id": new_id, "task": data.get('task'), "points": data.get('points')}
     chores.append(new_chore)
     return jsonify({"message": "Chore added successfully", "chore": new_chore}), 200
 
-# Edit Existing Chore
 @app.route('/api/chores/<int:chore_id>/edit', methods=['PUT'])
 def edit_existing_chore(chore_id):
     data = request.json
     chore = next((c for c in chores if c['id'] == chore_id), None)
-
     if not chore:
         return jsonify({"error": "Chore not found"}), 404
-
     chore['task'] = data.get('task', chore['task'])
     chore['points'] = data.get('points', chore['points'])
-
     return jsonify({"message": "Chore updated successfully", "chore": chore}), 200
 
-# Delete Chore
 @app.route('/api/chores/<int:chore_id>/delete', methods=['DELETE'])
 def delete_chore(chore_id):
     global chores
     chores = [c for c in chores if c['id'] != chore_id]
     return jsonify({"message": "Chore deleted successfully"}), 200
 
-# User History Route
 @app.route('/users/<int:user_id>/history')
 def user_history(user_id):
     user = next((u for u in users if u['id'] == user_id), None)
     if not user:
         return "User not found", 404
-
     return render_template('history.html', user=user)
 
-# Reset User Points
 @app.route('/api/users/<int:user_id>/reset', methods=['POST'])
 def reset_points(user_id):
     user = next((u for u in users if u['id'] == user_id), None)
@@ -166,7 +160,6 @@ def reset_points(user_id):
     user['points'] = 0
     return jsonify({"message": "User points reset successfully", "user": user}), 200
 
-# Add Bonus Points
 @app.route('/api/users/<int:user_id>/bonus', methods=['POST'])
 def add_bonus(user_id):
     data = request.form
@@ -184,6 +177,13 @@ def add_bonus(user_id):
     })
     return jsonify({"message": "Bonus points added successfully", "user": user}), 200
 
+# Real-time updates with SocketIO
+@socketio.on('update_points')
+def handle_update_points(data):
+    user_id = data['user_id']
+    points = data['points']
+    socketio.emit('points_updated', {'user_id': user_id, 'points': points})
+
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))  # Get PORT from Render, fallback to 10000
-    app.run(host='0.0.0.0', port=port)        # Host is set to '0.0.0.0' for Render
+    port = int(os.environ.get("PORT", 10000))
+    socketio.run(app, host='0.0.0.0', port=port)

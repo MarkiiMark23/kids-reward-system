@@ -15,7 +15,7 @@
         <ul>
             <li><a href="{{ url_for('view_chores') }}">Chores</a></li>
             <li><a href="{{ url_for('view_penalties') }}">Penalties</a></li>
-            <li><a href="{{ url_for('home') }}">Leaderboard</a></li>
+            <li><a href="{{ url_for('leaderboard') }}">Leaderboard</a></li>
             <li><a href="/users/{{ users[0]['id'] }}/history">User History</a></li>
         </ul>
     </nav>
@@ -32,6 +32,7 @@
             {% endfor %}
         </div>
     </section>
+
     <section>
         <h2>Top Scorer</h2>
         <div>
@@ -39,10 +40,12 @@
             <p><strong>{{ top_user.name }}</strong> with <strong>{{ top_user.points }}</strong> points!</p>
         </div>
     </section>
+
     <section>
         <h2>Points Distribution</h2>
         <canvas id="pointsChart" width="400" height="200"></canvas>
     </section>
+
     <script src="/static/node_modules/chart.js/dist/chart.min.js"></script>
     <script>
         const ctx = document.getElementById('pointsChart').getContext('2d');
@@ -60,24 +63,11 @@
             },
             options: {
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                    y: { beginAtZero: true }
                 }
             }
         });
-    </script>    
-    <section>
-        <h2>Recent Activities</h2>
-        <div class="activity-feed">
-            {% for activity in activities %}
-            <div class="activity-card">
-                <p>{{ activity.user_name }} {{ activity.action }} {{ activity.points }} points for {{ activity.chore_name }}</p>
-                <p class="timestamp">{{ activity.timestamp }}</p>
-            </div>
-            {% endfor %}
-        </div>    
-    </section>
+    </script>
     <footer>
         <p>Created with ❤️ for Eva, Nora & Marco to stay productive and have fun!</p>
     </footer>
