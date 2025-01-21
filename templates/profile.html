@@ -10,20 +10,45 @@
     <header>
         <h1>{{ user.name }}'s Profile</h1>
     </header>
+
     <section>
         <h2>Points: {{ user.points }}</h2>
-        <h3>History</h3>
+    </section>
+
+    <section>
+        <h2>Assigned Chores</h2>
         <ul>
-            {% for entry in user.history %}
+            {% for chore in assigned_chores %}
             <li>
-                <strong>{{ entry.timestamp }}</strong>: {{ entry.action }} ({{ entry.points }} points)
+                <strong>{{ chore.task }}</strong> - Due: {{ chore.deadline.strftime('%Y-%m-%d %H:%M:%S') }} - Status: {{ chore.status }}
+                {% if chore.status == "Pending" %}
+                <form action="/api/chores/{{ user.id }}/{{ chore.id }}/complete" method="POST">
+                    <button type="submit" class="btn">Mark as Completed</button>
+                </form>
+                {% else %}
+                <span class="completed-label">Completed</span>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
     </section>
+
+    <section>
+        <h2>Available Chores</h2>
+        <ul>
+            {% for chore in available_chores %}
+            <li>
+                <strong>{{ chore.task }}</strong> - Points: {{ chore.points }} - Due: {{ chore.deadline.strftime('%Y-%m-%d %H:%M:%S') }}
+                <form action="/api/chores/{{ user.id }}/{{ chore.id }}/assign" method="POST">
+                    <button type="submit" class="btn">Assign to Me</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>  
+    </section>
+
     <footer>
-        <a href="{{ url_for('home') }}">Back to Home</a>
+        <a href="{{ url_for('home') }}">Back to Homepage</a>
     </footer>
 </body>
 </html>
-

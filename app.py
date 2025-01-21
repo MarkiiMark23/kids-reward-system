@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO
+from flask import Flask, render_template, request, jsonify # type: ignore
+from flask_socketio import SocketIO # type: ignore
 from datetime import datetime
 import os
 
@@ -30,6 +30,11 @@ penalties = [
     {"id": 3, "action": "Yelling", "points_lost": -3},
 ]
 
+assigned_chores = [
+    # Example:
+    # {"user_id": 1, "chore_id": 2, "deadline": "2025-01-25", "status": "Pending"}
+]
+
 # Routes
 @app.route('/home')
 def home():
@@ -53,6 +58,44 @@ def leaderboard():
     for user in sorted_users:
         user['points'] = max(0, min(user['points'], 100))
     return render_template('leaderboard.html', users=sorted_users)
+
+@app.route('/assign', methods=['GET', 'POST'])
+def assign_chore():
+    if request.method == 'POST':
+        data = request.form
+        user_id = int(data.get('user_id'))
+        chore_id = int(data.get('chore_id'))
+        deadline = data.get('deadline')
+
+        # Add the assigned chore to the database
+        assigned_chores.append({
+            "user_id": user_id,
+            "chore_id": chore_id,
+            "deadline": deadline,
+            "status": "Pending"
+        })
+
+        return render_template('assign.html', message="Chore assigned successfully!", users=users, chores=chores)
+    
+    return render_template('assign.html', users=users, chores=chores)
+
+@app.route('/users/<int:user_id>/profile')
+def user_profile(user_id):
+    user = next((u for u in users if u['id'] == user_id), None)
+    if not user:
+        return "User not found", 404
+
+    # Get assigned chores for this user
+    user_assigned_chores = [
+        {
+            "task": next(c['task'] for c in chores if c['id'] == ac['chore_id']),
+            "deadline": ac['deadline'],
+            "status": ac['status']
+        }
+        for ac in assigned_chores if ac['user_id'] == user_id
+    ]
+
+    return render_template('profile.html', user=user, assigned_chores=user_assigned_chores)
 
 @app.route('/users/<int:user_id>/profile')
 def user_profile(user_id):
@@ -95,6 +138,36 @@ def add_chore_to_user(user_id):
         "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
     return jsonify({"message": "Chore added successfully", "user": user}), 200
+
+@app.route('/api/chores/<int:user_id>/<int:chore_id>/complete', methods=['POST'])
+def complete_chore(user_id, chore_id):
+    # Find the assigned chore
+    assigned_chore = next(
+        (ac for ac in assigned_chores if ac['user_id'] == user_id and ac['chore_id'] == chore_id), None
+    )
+    user = next((u for u in users if u['id'] == user_id), None)
+    chore = next((c for c in chores if c['id'] == chore_id), None)
+
+    if not assigned_chore or not user or not chore:
+        return jsonify({"error": "Invalid user or chore"}), 400
+
+    if assigned_chore["status"] == "Completed":
+        return jsonify({"error": "Chore already completed"}), 400
+
+    # Mark the chore as completed
+    assigned_chore["status"] = "Completed"
+
+    # Award points to the user
+    user["points"] += chore["points"]
+
+    # Add to user's history
+    user["history"].append({
+        "action": f"Completed chore: {chore['task']}",
+        "points": chore["points"],
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+    return jsonify({"message": "Chore marked as completed successfully", "user": user}), 200
 
 # Add Penalty Points
 @app.route('/api/users/<int:user_id>/add_penalty', methods=['POST'])

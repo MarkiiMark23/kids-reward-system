@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Chores</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Assign a Chore</h1>
+    </header>
+
+    <section>
+        {% if message %}
+        <p class="success">{{ message }}</p>
+        {% endif %}
+        <form method="POST">
+            <label for="user_id">Select User:</label>
+            <select id="user_id" name="user_id" required>
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="chore_id">Select Chore:</label>
+            <select id="chore_id" name="chore_id" required>
+                {% for chore in chores %}
+                <option value="{{ chore.id }}">{{ chore.task }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="deadline">Deadline:</label>
+            <input type="date" id="deadline" name="deadline" required>
+
+            <button type="submit" class="btn">Assign Chore</button>
+        </form>
+    </section>
+
+    <footer>
+        <a href="{{ url_for('home') }}">Back to Homepage</a>
+    </footer>
+</body>
+</html>
+
