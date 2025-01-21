@@ -9,6 +9,8 @@
     <ul>
         {% for user in users %}
         <li>{{ user.name }} - {{ user.points }} points
+            <a href="/users/{{ user.id }}/history">View History</a>
+        </li>  
     </ul>
             <!-- Form for adding points -->
             <form action="/users/{{ user.id }}/add_chore" method="POST">
