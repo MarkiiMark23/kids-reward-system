@@ -1,19 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Kids Reward System</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Reward System - Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to the Kids Reward System</h1>
-    <ul>
-        <li><a href="/users">View Users</a></li>
-        <li><a href="/chores">View Chores</a></li>
-        <li><a href="/penalties">View Penalties</a></li>
-        <li><a href="/history">View History</a></li>
-        <li><a href="/users/add">Add User</a></li>
-        <li><a href="/test/">View Test</a></li>
-    </ul>
+    <header>
+        <h1>Welcome to the Kids Reward System!</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('view_chores') }}">Chores</a></li>
+            <li><a href="{{ url_for('view_penalties') }}">Penalties</a></li>
+            <li><a href="{{ url_for('home') }}">Leaderboard</a></li>
+            <li><a href="/users/{{ users[0]['id'] }}/history">User History</a></li>
+        </ul>
+    </nav>
+
+    <section>
+        <h2>Current Users</h2>
+        <div class="user-summary">
+            {% for user in users %}
+            <div class="user-card">
+                <h3>{{ user.name }}</h3>
+                <p>Points: {{ user.points }}</p>
+                <a href="/users/{{ user.id }}/history" class="btn">View History</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <footer>
+        <p>Created with ❤️ for Eva, Nora & Marco to stay productive and have fun!</p>
+    </footer>
 </body>
 </html>
-
